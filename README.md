@@ -61,6 +61,7 @@ $ java TicketManagementEngine --customer <顧客ID> <パスワード> <customer.
 ### ユースケース
 
 #### 1. 正しい顧客IDとパスワードでのログイン
+パスワードと顧客IDはcustomer.csvファイルに存在し、一致する必要があります。
 
 ```bash
 $ java TicketManagementEngine --customer 1 abc@1 assets/customer.csv assets/concert.csv assets/bookings.csv assets/venue_mcg.txt
@@ -69,7 +70,7 @@ $ java TicketManagementEngine --customer 1 abc@1 assets/customer.csv assets/conc
 出力例:
 
 ```plaintext
-Welcome Trina Dey to Ticket Management System
+Welcome John Doe to Ticket Management System
 
  ________  ___ _____ 
 |_   _|  \/  |/  ___|
@@ -79,6 +80,13 @@ Welcome Trina Dey to Ticket Management System
   \_/ \_|  |_\____/ 
 
 Select a concert or 0 to exit
+---------------------------------------------------------------------------------------------------------------------------
+#    Date           Artist Name    Timing         Venue Name                    Total Seats    Seats Booked   Seats Left     
+---------------------------------------------------------------------------------------------------------------------------
+1    2024-10-01     Taylor Swift   1900           MCG                           224            5              219            
+2    2024-10-04     Taylor Swift   1900           MARVEL                        143            5              138            
+---------------------------------------------------------------------------------------------------------------------------
+>
 ```
 
 #### 2. 不正な顧客IDまたはパスワード
@@ -91,7 +99,7 @@ Select a concert or 0 to exit
 顧客名とパスワードの入力を求められ、新しい顧客IDが生成されます。
 
 ```plaintext
-Enter your name: Jane Doe
+Enter your name: John Doe
 Enter your password: abc#1234
 ```
 
@@ -116,6 +124,17 @@ Enter your password: abc#1234
 Left Seats:   199.0
 Center Seats: 199.0
 Right Seats:  259.0
+------------------------------
+---------- STANDING ----------
+Left Seats:   99.0
+Center Seats: 99.0
+Right Seats:  149.0
+------------------------------
+----------      VIP ----------
+Left Seats:   359.0
+Center Seats: 359.0
+Right Seats:  499.0
+------------------------------
 ```
 
 #### 2. 座席レイアウトの表示
@@ -139,7 +158,7 @@ Enter the number of seats to be booked: 4
 
 #### 4. 予約詳細の表示
 
-顧客の予約履歴を表示します。
+選択されたコンサートの顧客の予約履歴を表示します。
 
 ```plaintext
 Bookings
@@ -147,7 +166,40 @@ Bookings
 Id   Concert Date   Artist Name    Timing    Venue Name     Seats Booked   Total Price
 ---------------------------------------------------------------------------------------------------------------------------
 1    2024-10-01     Taylor Swift   1900      MCG            3              1217.0
+2    2024-10-01     Taylor Swift   1900      MCG            2              518.0     
+3    2024-10-01     Taylor Swift   1900      MCG            4              396.0
+
+
+Ticket Info
+############### Booking Id: 1 ####################
+Id   Aisle Number   Seat Number    Seat Type Price     
+##################################################
+1    3              3              VIP       359.0     
+2    3              4              VIP       359.0     
+3    3              5              VIP       499.0     
+##################################################
+
+############### Booking Id: 2 ####################
+Id   Aisle Number   Seat Number    Seat Type Price     
+##################################################
+1    4              7              SEATING   259.0     
+2    4              8              SEATING   259.0     
+##################################################
+
+############### Booking Id: 3 ####################
+Id   Aisle Number   Seat Number    Seat Type Price     
+##################################################
+1    1              5              STANDING  99.0      
+2    1              6              STANDING  99.0      
+3    1              7              STANDING  99.0      
+4    1              8              STANDING  99.0      
+##################################################
 ```
+
+#### 5. 終了
+
+現在のコンサートメニューから退出し、コンサート選択画面が再度表示されます。ここで、同じコンサートまたは別のコンサートで操作を続行するか、プログラムを終了するために「0」を選択することができます。
+
 
 ---
 
@@ -156,8 +208,12 @@ Id   Concert Date   Artist Name    Timing    Venue Name     Seats Booked   Total
 管理者モードでプログラムを実行するには以下のコマンドを使用します。
 
 ```bash
-$ java TicketManagementEngine --admin <customer.csv> <concert.csv> <bookings.csv> [<会場ファイル1>] [<会場ファイル2>]
+$ java TicketManagementEngine --admin <customer.csv> <concert.csv> <bookings.csv> [<会場ファイル>]
 ```
+```bash
+$ java TicketManagementEngine --admin assets/customer.csv assets/concert.csv assets/bookings.csv assets/venue_mcg.txt
+```
+
 
 ### メニューオプション
 
@@ -167,18 +223,82 @@ $ java TicketManagementEngine --admin <customer.csv> <concert.csv> <bookings.csv
 4. **コンサートの総支払い額を表示**
 5. **終了する**
 
-#### チケット料金の更新
+#### 1. すべてのコンサートの詳細を表示
 
-座席エリアごとに価格を変更できます。
+すべてのコンサートの詳細が表示されます。
+
+```plaintext
+---------------------------------------------------------------------------------------------------------------------------
+#    Date           Artist Name    Timing         Venue Name                    Total Seats    Seats Booked   Seats Left     
+---------------------------------------------------------------------------------------------------------------------------
+1    2024-10-01     Taylor Swift   1900           MCG                           224            5              219            
+2    2024-10-04     Taylor Swift   1900           MARVEL                        143            5              138            
+---------------------------------------------------------------------------------------------------------------------------
+```
+
+#### 2. チケット料金の更新
+
+座席ゾーンを選択し、エリアごとの価格を更新できます。
 
 ```plaintext
 Select a concert or 0 to exit
-Enter new price for Left Seats: 299.0
-Enter new price for Right Seats: 399.0
+----------  SEATING ----------
+Left Seats:   199.0
+Center Seats: 199.0
+Right Seats:  259.0
+------------------------------
+Enter the zone : VIP, SEATING, STANDING: SEATING
+Left zone price: 200
+Centre zone price: 225
+Right zone price: 220
 ```
 
----
+#### 3. 予約詳細の表示
 
-## 注意事項
-- プログラムを終了するとすべてのデータがCSVファイルに保存されます。
-- 各CSVファイルのフォーマットが正しいことを確認してください。
+すべての顧客の予約詳細を確認できます。コンサートを選択した後、以下のようなデータが表示されます。
+
+```plaintext
+Bookings
+---------------------------------------------------------------------------------------------------------------------------
+Id   Concert Date   Artist Name    Timing    Venue Name     Seats Booked   Total Price
+---------------------------------------------------------------------------------------------------------------------------
+1    2024-10-01     Taylor Swift   1900      MCG            3              1217.0    
+2    2024-10-01     Taylor Swift   1900      MCG            2              518.0     
+---------------------------------------------------------------------------------------------------------------------------
+
+Ticket Info
+############### Booking Id: 1 ####################
+Id   Aisle Number   Seat Number    Seat Type Price     
+##################################################
+1    3              3              VIP       359.0     
+2    3              4              VIP       359.0     
+3    3              5              VIP       499.0     
+##################################################
+
+############### Booking Id: 2 ####################
+Id   Aisle Number   Seat Number    Seat Type Price     
+##################################################
+1    4              7              SEATING   259.0     
+2    4              8              SEATING   259.0     
+##################################################
+```
+
+#### 4. コンサートの総支払い額を表示
+
+コンサートで受け取った総支払い額を表示します。
+
+```plaintext
+Select a concert or 0 to exit
+---------------------------------------------------------------------------------------------------------------------------
+#    Date           Artist Name    Timing         Venue Name                    Total Seats    Seats Booked   Seats Left     
+---------------------------------------------------------------------------------------------------------------------------
+1    2024-10-01     Taylor Swift   1900           MCG                           224            5              219            
+2    2024-10-04     Taylor Swift   1900           MARVEL                        143            5              138            
+---------------------------------------------------------------------------------------------------------------------------
+> 1
+Total Price for this concert is AUD 1735.0
+```
+
+#### 5. 終了する
+
+プログラムを終了し、すべてのデータがCSVファイルに保存されます。
